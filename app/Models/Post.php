@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Facades\Date;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
@@ -89,6 +90,39 @@ class Post extends Model
     public function scopePublished(Builder $query): void
     {
         $query->where('status', PostStatus::Published);
+    }
+
+    /**
+     * Scheduled posts whose publish time has come.
+     *
+     * @param  Builder<Post>  $query
+     */
+    public function scopeDue(Builder $query): void
+    {
+        $query->where('status', PostStatus::Scheduled)->where('publish_at', '<=', now());
+    }
+
+    /**
+     * Publish a due scheduled post as of its publish_at. This is the one place scheduled posts go live.
+     *
+     * The row lock and the re-check make overlapping runs safe: a second run waits for the first
+     * to commit, then no longer finds the post due. Returns whether this call published it.
+     */
+    public static function publishIfDue(int $id): bool
+    {
+        return DB::transaction(function () use ($id) {
+            $post = static::due()->lockForUpdate()->find($id);
+
+            if (! $post) {
+                return false;
+            }
+
+            $post->status = PostStatus::Published;
+            $post->published_at = $post->publish_at;
+            $post->save();
+
+            return true;
+        });
     }
 
     /**
