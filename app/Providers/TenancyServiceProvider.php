@@ -103,6 +103,10 @@ class TenancyServiceProvider extends ServiceProvider
         $this->mapRoutes();
 
         $this->makeTenancyMiddlewareHighestPriority();
+
+        Middleware\InitializeTenancyByDomain::$onFail = function () {
+            abort(404);
+        };
     }
 
     protected function bootEvents()
