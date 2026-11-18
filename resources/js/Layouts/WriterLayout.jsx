@@ -25,7 +25,7 @@ function TenantMark({ tenant }) {
 }
 
 export default function WriterLayout({ children }) {
-    const { tenant, auth } = usePage().props;
+    const { tenant, auth, flash } = usePage().props;
     const brand = HEX_COLOR.test(tenant?.brand_color ?? '')
         ? tenant.brand_color
         : DEFAULT_BRAND_COLOR;
@@ -49,6 +49,13 @@ export default function WriterLayout({ children }) {
 
                     {auth.user && (
                         <div className="flex items-center gap-4">
+                            <Link
+                                href={route('tenant.dashboard.posts.index')}
+                                aria-current={route().current('tenant.dashboard.posts.*') ? 'page' : undefined}
+                                className="cursor-pointer rounded-md px-3 py-1.5 text-sm font-medium text-zinc-700 transition-colors duration-200 hover:bg-zinc-100 hover:text-zinc-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)] aria-[current=page]:text-zinc-900 aria-[current=page]:underline aria-[current=page]:decoration-[var(--brand)] aria-[current=page]:decoration-2 aria-[current=page]:underline-offset-8"
+                            >
+                                Posts
+                            </Link>
                             <span className="hidden text-sm text-zinc-600 sm:inline">
                                 {auth.user.name}
                             </span>
@@ -66,6 +73,14 @@ export default function WriterLayout({ children }) {
             </header>
 
             <main className="mx-auto max-w-5xl px-4 py-10 sm:px-6">
+                {flash?.success && (
+                    <div
+                        role="status"
+                        className="mb-6 rounded-md border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800"
+                    >
+                        {flash.success}
+                    </div>
+                )}
                 {children}
             </main>
         </div>

@@ -39,6 +39,11 @@ Route::middleware([
         Route::middleware('auth')->group(function () {
             Route::get('dashboard', fn () => Inertia::render('Tenant/Dashboard'))->name('dashboard');
             Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
+
+            Route::resource('dashboard/posts', PostController::class)
+                ->except('show')
+                ->parameters(['posts' => 'post'])
+                ->names('dashboard.posts');
         });
     });
 });
