@@ -1,0 +1,22 @@
+---
+description: React + Inertia frontend conventions and tenant branding
+globs: resources/js/**
+alwaysApply: false
+---
+
+# Frontend (React + Inertia)
+
+## Components
+- React functional components with hooks only; no class components.
+- Pages are Inertia pages (`resources/js/Pages`); use Inertia `Link`, `useForm` and `router` for navigation and forms.
+
+## Design
+- Use the UI/UX Pro Max skill (`.cursor/skills/ui-ux-pro-max`) when building or restyling public blog pages and the writers' dashboard.
+
+## Tenant branding
+- Tenant logo and brand color come from shared Inertia props (`usePage().props`).
+- Apply the brand color via the CSS variable `--brand` (set once at the layout root) and reference `var(--brand)` in styles; never hard-code tenant colors.
+- Validate colors as `#rrggbb` (regex `^#[0-9a-fA-F]{6}$`) on the server and in forms; fall back to a default when invalid.
+
+## Dependencies
+- No new UI libraries (component kits, CSS frameworks, icon packs) without asking first.
