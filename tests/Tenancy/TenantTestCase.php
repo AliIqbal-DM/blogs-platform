@@ -4,8 +4,11 @@ namespace Tests\Tenancy;
 
 use App\Models\Tenant;
 use App\Models\User;
+use Illuminate\Cache\ArrayStore;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\File;
+use Stancl\Tenancy\Events\TenancyBootstrapped;
 use Tests\TestCase;
 
 /**
@@ -50,6 +53,7 @@ abstract class TenantTestCase extends TestCase
             'tenancy.filesystem.suffix_base' => static::TENANT_STORAGE_SUFFIX,
         ]);
 
+        $this->shareOneArrayCacheStore();
         $this->dropLeftoverTenantDatabases();
         $this->deleteTenantStorageFolders();
         $this->artisan('migrate:fresh');
@@ -103,6 +107,22 @@ abstract class TenantTestCase extends TestCase
         return DB::table('information_schema.SCHEMATA')
             ->where('SCHEMA_NAME', static::TENANT_DATABASE_PREFIX.$tenantId)
             ->exists();
+    }
+
+    /**
+     * CacheTenancyBootstrapper builds a new cache manager on every tenancy initialization. With the
+     * array driver each manager would get its own empty store, so nothing would survive between
+     * requests or run() calls. Like Redis in production, every manager now uses one store, and
+     * tenants are kept apart only by the package's per-tenant tag.
+     */
+    private function shareOneArrayCacheStore(): void
+    {
+        $store = new ArrayStore;
+        $useSharedStore = fn () => app('cache')->extend('array', fn () => $this->repository($store));
+
+        $useSharedStore();
+        app('cache')->forgetDriver('array');
+        Event::listen(TenancyBootstrapped::class, $useSharedStore);
     }
 
     /**
