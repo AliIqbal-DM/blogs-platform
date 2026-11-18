@@ -72,4 +72,4 @@ jobs:
         run: php artisan test
 
       - name: Run tenancy tests (MySQL)
-        run: php artisan test --configuration=phpunit.tenancy.xml
+        run: vendor/bin/phpunit --configuration=phpunit.tenancy.xml
