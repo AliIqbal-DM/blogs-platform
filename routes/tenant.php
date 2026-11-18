@@ -3,6 +3,8 @@
 declare(strict_types=1);
 
 use App\Http\Controllers\Tenant\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\Tenant\BlogController;
+use App\Http\Controllers\Tenant\PostController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Stancl\Tenancy\Middleware\InitializeTenancyByDomain;
@@ -25,11 +27,10 @@ Route::middleware([
     InitializeTenancyByDomain::class,
     PreventAccessFromCentralDomains::class,
 ])->group(function () {
-    Route::get('/', function () {
-        return 'This is your multi-tenant application. The id of the current tenant is ' . tenant('id');
-    });
-
     Route::name('tenant.')->group(function () {
+        Route::get('/', [BlogController::class, 'home'])->name('home');
+        Route::get('posts/{slug}', [BlogController::class, 'show'])->name('posts.show');
+
         Route::middleware('guest')->group(function () {
             Route::get('login', [AuthenticatedSessionController::class, 'create'])->name('login');
             Route::post('login', [AuthenticatedSessionController::class, 'store']);
