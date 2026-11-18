@@ -16,7 +16,9 @@ return Application::configure(basePath: dirname(__DIR__))
             \Illuminate\Http\Middleware\AddLinkHeadersForPreloadedAssets::class,
         ]);
 
-        //
+        // Tenant and central route names differ, so pick the login and home routes for the current domain.
+        $middleware->redirectGuestsTo(fn () => route(tenancy()->initialized ? 'tenant.login' : 'login'));
+        $middleware->redirectUsersTo(fn () => route(tenancy()->initialized ? 'tenant.dashboard' : 'dashboard'));
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //
