@@ -26,6 +26,7 @@ class BlogController extends Controller
                 'slug' => $post->slug,
                 'excerpt' => Str::limit($post->body, 240),
                 'author' => $post->user?->name,
+                'cover_url' => $post->cover_url,
                 'published_at' => $post->published_at?->toIso8601String(),
             ]);
 
@@ -43,6 +44,7 @@ class BlogController extends Controller
                 'title' => $post->title,
                 'body' => $post->body,
                 'author' => $post->user?->name,
+                'cover_url' => $post->cover_url,
                 'published_at' => $post->published_at?->toIso8601String(),
             ],
         ]);
