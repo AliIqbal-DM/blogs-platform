@@ -40,6 +40,26 @@ function StatusDetail({ post }) {
     return <>Updated {formatDateTime(post.updated_at)}</>;
 }
 
+function CoverThumbnail({ post }) {
+    if (!post.cover_url) {
+        return (
+            <span
+                aria-hidden="true"
+                className="hidden aspect-[16/9] w-20 shrink-0 rounded border border-dashed border-zinc-300 bg-zinc-50 sm:block"
+            />
+        );
+    }
+
+    return (
+        <img
+            src={post.cover_url}
+            alt={`Cover image for “${post.title}”`}
+            loading="lazy"
+            className="aspect-[16/9] w-20 shrink-0 rounded border border-zinc-200 object-cover"
+        />
+    );
+}
+
 function NewPostButton() {
     return (
         <Link
@@ -116,20 +136,23 @@ export default function Index({ posts }) {
                 <ul className="divide-y divide-zinc-200 overflow-hidden rounded-lg border border-zinc-200 bg-white">
                     {posts.map((post) => (
                         <li key={post.id} className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between">
-                            <div className="min-w-0">
-                                <div className="flex items-center gap-2">
-                                    <StatusBadge status={post.status} />
-                                    <Link
-                                        href={route('tenant.dashboard.posts.edit', post.id)}
-                                        className="cursor-pointer truncate font-medium text-zinc-900 hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]"
-                                    >
-                                        {post.title}
-                                    </Link>
+                            <div className="flex min-w-0 items-center gap-4">
+                                <CoverThumbnail post={post} />
+                                <div className="min-w-0">
+                                    <div className="flex items-center gap-2">
+                                        <StatusBadge status={post.status} />
+                                        <Link
+                                            href={route('tenant.dashboard.posts.edit', post.id)}
+                                            className="cursor-pointer truncate font-medium text-zinc-900 hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]"
+                                        >
+                                            {post.title}
+                                        </Link>
+                                    </div>
+                                    <p className="mt-1 text-xs text-zinc-600">
+                                        <StatusDetail post={post} />
+                                        {post.author && <> · by {post.author}</>}
+                                    </p>
                                 </div>
-                                <p className="mt-1 text-xs text-zinc-600">
-                                    <StatusDetail post={post} />
-                                    {post.author && <> · by {post.author}</>}
-                                </p>
                             </div>
 
                             <div className="flex shrink-0 items-center gap-2">

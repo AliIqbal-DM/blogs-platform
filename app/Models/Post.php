@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Facades\Date;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
@@ -46,6 +47,32 @@ class Post extends Model
         });
 
         static::saving(fn (Post $post) => $post->applyStatusRules());
+
+        static::updated(function (Post $post) {
+            if ($post->wasChanged('cover_image')) {
+                static::deleteCoverFile($post->getOriginal('cover_image'));
+            }
+        });
+
+        static::deleted(fn (Post $post) => static::deleteCoverFile($post->cover_image));
+    }
+
+    /**
+     * The URL of the cover on the current tenant's asset route, or null without a cover.
+     */
+    protected function coverUrl(): Attribute
+    {
+        return Attribute::get(fn () => $this->cover_image ? tenant_asset($this->cover_image) : null);
+    }
+
+    /**
+     * Covers live on the tenant's public disk, so this must run inside that tenant's context.
+     */
+    public static function deleteCoverFile(?string $path): void
+    {
+        if ($path) {
+            Storage::disk('public')->delete($path);
+        }
     }
 
     /**

@@ -10,6 +10,8 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
 use Inertia\Response;
+use RuntimeException;
+use Throwable;
 
 class PostController extends Controller
 {
@@ -29,6 +31,7 @@ class PostController extends Controller
                 'publish_at' => $post->publish_at?->toIso8601String(),
                 'published_at' => $post->published_at?->toIso8601String(),
                 'author' => $post->user?->name,
+                'cover_url' => $post->cover_url,
                 'updated_at' => $post->updated_at?->toIso8601String(),
             ]);
 
@@ -46,9 +49,9 @@ class PostController extends Controller
 
     public function store(StorePostRequest $request): RedirectResponse
     {
-        $post = new Post($request->validated());
+        $post = new Post($request->postAttributes());
         $post->user()->associate($request->user());
-        $post->save();
+        $this->saveWithCover($post, $request);
 
         return redirect()
             ->route('tenant.dashboard.posts.index')
@@ -67,13 +70,15 @@ class PostController extends Controller
                 'body' => $post->body,
                 'status' => $post->status,
                 'publish_at' => $post->publish_at?->toIso8601String(),
+                'cover_url' => $post->cover_url,
             ],
         ]);
     }
 
     public function update(UpdatePostRequest $request, Post $post): RedirectResponse
     {
-        $post->update($request->validated());
+        $post->fill($request->postAttributes());
+        $this->saveWithCover($post, $request);
 
         return redirect()
             ->route('tenant.dashboard.posts.index')
@@ -89,5 +94,32 @@ class PostController extends Controller
         return redirect()
             ->route('tenant.dashboard.posts.index')
             ->with('success', "Post \"{$post->title}\" deleted.");
+    }
+
+    /**
+     * Stores a new cover upload (or clears the cover) and saves the post. Post's model events
+     * delete the previous file; a new upload is deleted again when the save fails.
+     */
+    private function saveWithCover(Post $post, StorePostRequest $request): void
+    {
+        $newCover = $request->file('cover')?->store('covers', 'public');
+
+        if ($newCover === false) {
+            throw new RuntimeException('The cover image could not be stored.');
+        }
+
+        if ($newCover) {
+            $post->cover_image = $newCover;
+        } elseif ($request->boolean('remove_cover')) {
+            $post->cover_image = null;
+        }
+
+        try {
+            $post->save();
+        } catch (Throwable $e) {
+            Post::deleteCoverFile($newCover);
+
+            throw $e;
+        }
     }
 }

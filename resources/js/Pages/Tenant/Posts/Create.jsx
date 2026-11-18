@@ -8,6 +8,7 @@ export default function Create() {
         body: '',
         status: 'draft',
         publish_at: '',
+        cover: null,
     });
 
     const submit = (e) => {

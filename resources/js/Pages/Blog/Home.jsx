@@ -20,9 +20,18 @@ export default function Home({ posts }) {
                 <p className="py-16 text-center text-zinc-600">No posts published yet.</p>
             ) : (
                 <ol className="divide-y divide-zinc-200">
-                    {posts.data.map((post) => (
+                    {posts.data.map((post, index) => (
                         <li key={post.id} className="py-8 first:pt-0">
                             <article>
+                                {post.cover_url && (
+                                    <img
+                                        src={post.cover_url}
+                                        alt={`Cover image for “${post.title}”`}
+                                        loading={index === 0 ? 'eager' : 'lazy'}
+                                        decoding="async"
+                                        className="mb-5 aspect-[16/9] w-full rounded-lg border border-zinc-200 bg-zinc-100 object-cover"
+                                    />
+                                )}
                                 <p className="text-sm text-zinc-600">
                                     <time dateTime={post.published_at}>{formatDate(post.published_at)}</time>
                                     {post.author && <> · {post.author}</>}

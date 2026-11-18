@@ -20,6 +20,15 @@ export default function Show({ post }) {
                     <h1 className="mt-2 text-3xl font-bold tracking-tight sm:text-4xl">{post.title}</h1>
                 </header>
 
+                {post.cover_url && (
+                    <img
+                        src={post.cover_url}
+                        alt={`Cover image for “${post.title}”`}
+                        fetchpriority="high"
+                        className="mt-8 aspect-[16/9] w-full rounded-lg border border-zinc-200 bg-zinc-100 object-cover"
+                    />
+                )}
+
                 {/* Plain text only: rendered as a text node, never as HTML. */}
                 <div className="mt-8 whitespace-pre-line break-words text-lg leading-8 text-zinc-800">
                     {post.body}
