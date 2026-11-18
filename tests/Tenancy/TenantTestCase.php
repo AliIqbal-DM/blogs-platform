@@ -3,6 +3,7 @@
 namespace Tests\Tenancy;
 
 use App\Models\Tenant;
+use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
 
@@ -51,6 +52,30 @@ abstract class TenantTestCase extends TestCase
         }
 
         parent::tearDown();
+    }
+
+    /**
+     * Each HTTP request in production starts with a fresh app. In tests the app is shared,
+     * so clear the tenant context, resolved guard user and session handler between requests.
+     */
+    protected function freshRequestState(): void
+    {
+        tenancy()->end();
+        $this->app['auth']->forgetGuards();
+        $this->app['session']->forgetDrivers();
+        $this->app->forgetInstance('session.store');
+    }
+
+    /**
+     * Log in as the writer seeded into the given tenant, starting from a fresh request state.
+     */
+    protected function actingAsWriter(Tenant $tenant): static
+    {
+        $this->freshRequestState();
+
+        $writer = $tenant->run(fn () => User::where('email', 'writer@blogs.test')->firstOrFail());
+
+        return $this->actingAs($writer);
     }
 
     protected function tenantDatabaseExists(string $tenantId): bool

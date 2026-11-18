@@ -132,16 +132,4 @@ class TenantAuthTest extends TenantTestCase
 
         $this->assertGuest();
     }
-
-    /**
-     * Each HTTP request in production starts with a fresh app. In tests the app is shared,
-     * so clear the tenant context, resolved guard user and session handler between requests.
-     */
-    private function freshRequestState(): void
-    {
-        tenancy()->end();
-        $this->app['auth']->forgetGuards();
-        $this->app['session']->forgetDrivers();
-        $this->app->forgetInstance('session.store');
-    }
 }
