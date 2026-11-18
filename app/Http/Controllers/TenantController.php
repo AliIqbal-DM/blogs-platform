@@ -6,6 +6,7 @@ use App\Actions\Tenants\CreateTenant;
 use App\Http\Requests\StoreTenantRequest;
 use App\Models\Post;
 use App\Models\Tenant;
+use App\Support\BrandColor;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Schema;
 use Inertia\Inertia;
@@ -44,7 +45,7 @@ class TenantController extends Controller
     public function create(): Response
     {
         return Inertia::render('Tenants/Create', [
-            'defaultBrandColor' => '#4f46e5',
+            'defaultBrandColor' => BrandColor::DEFAULT,
         ]);
     }
 
