@@ -5,6 +5,7 @@ namespace Tests\Tenancy;
 use App\Models\Tenant;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\File;
 use Tests\TestCase;
 
 /**
@@ -16,6 +17,12 @@ abstract class TenantTestCase extends TestCase
     protected const TEST_DATABASE = 'blogs_central_test';
 
     protected const TENANT_DATABASE_PREFIX = 'tenant_test_';
+
+    /**
+     * Tenant storage folders are storage/<suffix><id>. A test-only suffix keeps test tenants
+     * (acme, globex, ...) away from the folders of dev tenants with the same id.
+     */
+    protected const TENANT_STORAGE_SUFFIX = 'tenant_test_';
 
     /**
      * Only clean up once we know we are connected to the test database.
@@ -38,9 +45,13 @@ abstract class TenantTestCase extends TestCase
 
         $this->onTestDatabase = true;
 
-        config(['tenancy.database.prefix' => static::TENANT_DATABASE_PREFIX]);
+        config([
+            'tenancy.database.prefix' => static::TENANT_DATABASE_PREFIX,
+            'tenancy.filesystem.suffix_base' => static::TENANT_STORAGE_SUFFIX,
+        ]);
 
         $this->dropLeftoverTenantDatabases();
+        $this->deleteTenantStorageFolders();
         $this->artisan('migrate:fresh');
     }
 
@@ -49,6 +60,7 @@ abstract class TenantTestCase extends TestCase
         if ($this->onTestDatabase) {
             tenancy()->end();
             Tenant::all()->each->delete();
+            $this->deleteTenantStorageFolders();
         }
 
         parent::tearDown();
@@ -78,6 +90,14 @@ abstract class TenantTestCase extends TestCase
         return $this->actingAs($writer);
     }
 
+    /**
+     * The physical storage folder of a tenant, e.g. storage/tenant_test_acme.
+     */
+    protected function tenantStoragePath(string $tenantId, string $path = ''): string
+    {
+        return rtrim(base_path('storage/'.static::TENANT_STORAGE_SUFFIX.$tenantId.'/'.$path), '/');
+    }
+
     protected function tenantDatabaseExists(string $tenantId): bool
     {
         return DB::table('information_schema.SCHEMATA')
@@ -96,6 +116,13 @@ abstract class TenantTestCase extends TestCase
 
         foreach ($leftovers as $name) {
             DB::statement("DROP DATABASE `{$name}`");
+        }
+    }
+
+    private function deleteTenantStorageFolders(): void
+    {
+        foreach (File::glob(base_path('storage/'.static::TENANT_STORAGE_SUFFIX.'*'), GLOB_ONLYDIR) as $folder) {
+            File::deleteDirectory($folder);
         }
     }
 }
