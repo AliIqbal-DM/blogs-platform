@@ -99,6 +99,9 @@ export default function Index({ tenants }) {
                                             <th scope="col" className="px-6 py-3 text-left font-medium text-gray-600">
                                                 Domain
                                             </th>
+                                            <th scope="col" className="px-6 py-3 text-right font-medium text-gray-600">
+                                                Posts
+                                            </th>
                                             <th scope="col" className="px-6 py-3 text-left font-medium text-gray-600">
                                                 Brand color
                                             </th>
@@ -141,6 +144,13 @@ export default function Index({ tenants }) {
                                                             </li>
                                                         ))}
                                                     </ul>
+                                                </td>
+                                                <td className="whitespace-nowrap px-6 py-4 text-right tabular-nums text-gray-700">
+                                                    {tenant.post_count ?? (
+                                                        <span title="This blog's database has no posts table yet">
+                                                            —
+                                                        </span>
+                                                    )}
                                                 </td>
                                                 <td className="px-6 py-4">
                                                     <div className="flex items-center gap-2">
