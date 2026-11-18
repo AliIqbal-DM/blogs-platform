@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Tenant;
 
 use App\Http\Controllers\Controller;
 use App\Models\Post;
+use App\Support\HomepageCache;
+use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -15,7 +17,7 @@ class BlogController extends Controller
 {
     public function home(): Response
     {
-        $posts = Post::published()
+        $posts = HomepageCache::posts(Paginator::resolveCurrentPage(), fn () => Post::published()
             ->with('user:id,name')
             ->latest('published_at')
             ->latest('id')
@@ -28,7 +30,8 @@ class BlogController extends Controller
                 'author' => $post->user?->name,
                 'cover_url' => $post->cover_url,
                 'published_at' => $post->published_at?->toIso8601String(),
-            ]);
+            ])
+            ->toArray());
 
         return Inertia::render('Blog/Home', [
             'posts' => $posts,

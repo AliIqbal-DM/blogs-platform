@@ -1,3 +1,4 @@
+import { brandButtonClass } from '@/brand';
 import InputError from '@/Components/InputError';
 import { Link } from '@inertiajs/react';
 import { useEffect, useState } from 'react';
@@ -242,7 +243,7 @@ export default function Form({ form, onSubmit, submitLabel, currentCoverUrl = nu
                 <button
                     type="submit"
                     disabled={processing}
-                    className="cursor-pointer rounded-md bg-[var(--brand)] px-4 py-2 text-sm font-semibold text-white shadow-sm transition-opacity duration-200 hover:opacity-90 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                    className={brandButtonClass}
                 >
                     {processing ? 'Saving…' : submitLabel}
                 </button>

@@ -1,4 +1,4 @@
-import Checkbox from '@/Components/Checkbox';
+import { brandButtonClass } from '@/brand';
 import InputError from '@/Components/InputError';
 import WriterLayout from '@/Layouts/WriterLayout';
 import { Head, useForm, usePage } from '@inertiajs/react';
@@ -80,9 +80,11 @@ export default function Login({ status }) {
                     </div>
 
                     <label className="flex cursor-pointer items-center">
-                        <Checkbox
+                        <input
+                            type="checkbox"
                             name="remember"
                             checked={data.remember}
+                            className="rounded border-zinc-300 text-[var(--brand)] shadow-sm focus:ring-[var(--brand)]"
                             onChange={(e) => setData('remember', e.target.checked)}
                         />
                         <span className="ms-2 text-sm text-zinc-600">Remember me</span>
@@ -91,7 +93,7 @@ export default function Login({ status }) {
                     <button
                         type="submit"
                         disabled={processing}
-                        className="w-full cursor-pointer rounded-md bg-[var(--brand)] px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-opacity duration-200 hover:opacity-90 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                        className={`${brandButtonClass} w-full py-2.5`}
                     >
                         {processing ? 'Logging in…' : 'Log in'}
                     </button>

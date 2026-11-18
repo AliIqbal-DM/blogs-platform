@@ -1,3 +1,4 @@
+import { brandLinkClass } from '@/brand';
 import BlogLayout from '@/Layouts/BlogLayout';
 import { Head, Link, usePage } from '@inertiajs/react';
 
@@ -13,6 +14,7 @@ export default function Show({ post }) {
 
             <article className="mx-auto max-w-prose">
                 <header>
+                    <span aria-hidden="true" className="mb-4 block h-1 w-12 rounded-full bg-[var(--brand)]" />
                     <p className="text-sm text-zinc-600">
                         <time dateTime={post.published_at}>{formatDate(post.published_at)}</time>
                         {post.author && <> · {post.author}</>}
@@ -37,7 +39,7 @@ export default function Show({ post }) {
                 <footer className="mt-12 border-t border-zinc-200 pt-6">
                     <Link
                         href={route('tenant.home')}
-                        className="cursor-pointer rounded-sm text-sm font-medium text-zinc-700 hover:text-zinc-900 hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-900"
+                        className={`text-sm font-medium text-zinc-700 hover:text-zinc-900 ${brandLinkClass}`}
                     >
                         ← All posts
                     </Link>

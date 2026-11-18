@@ -1,7 +1,5 @@
+import { brandStyle } from '@/brand';
 import { Link, usePage } from '@inertiajs/react';
-
-const HEX_COLOR = /^#[0-9a-fA-F]{6}$/;
-const DEFAULT_BRAND_COLOR = '#4f46e5';
 
 function TenantMark({ tenant }) {
     if (tenant.logo_url) {
@@ -9,7 +7,7 @@ function TenantMark({ tenant }) {
             <img
                 src={tenant.logo_url}
                 alt={`${tenant.name} logo`}
-                className="h-8 w-8 rounded-md object-cover"
+                className="h-8 w-8 rounded-md object-cover ring-1 ring-zinc-200"
             />
         );
     }
@@ -17,7 +15,7 @@ function TenantMark({ tenant }) {
     return (
         <span
             aria-hidden="true"
-            className="flex h-8 w-8 items-center justify-center rounded-md bg-[var(--brand)] text-sm font-semibold text-white"
+            className="flex h-8 w-8 items-center justify-center rounded-md bg-[var(--brand)] text-sm font-semibold text-[var(--brand-foreground)]"
         >
             {tenant.name?.charAt(0).toUpperCase()}
         </span>
@@ -26,15 +24,10 @@ function TenantMark({ tenant }) {
 
 export default function WriterLayout({ children }) {
     const { tenant, auth, flash } = usePage().props;
-    const brand = HEX_COLOR.test(tenant?.brand_color ?? '')
-        ? tenant.brand_color
-        : DEFAULT_BRAND_COLOR;
 
     return (
-        <div
-            className="min-h-screen bg-zinc-50 text-zinc-900"
-            style={{ '--brand': brand }}
-        >
+        <div className="min-h-screen bg-zinc-50 text-zinc-900" style={brandStyle(tenant)}>
+            <div aria-hidden="true" className="h-1 bg-[var(--brand)]" />
             <header className="border-b border-zinc-200 bg-white">
                 <div className="mx-auto flex h-16 max-w-5xl items-center justify-between px-4 sm:px-6">
                     <Link
