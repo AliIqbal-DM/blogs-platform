@@ -1,3 +1,4 @@
+import { brandLinkClass } from '@/brand';
 import BlogLayout from '@/Layouts/BlogLayout';
 import { Head, Link, usePage } from '@inertiajs/react';
 
@@ -5,7 +6,7 @@ const formatDate = (iso) =>
     new Intl.DateTimeFormat(undefined, { dateStyle: 'long' }).format(new Date(iso));
 
 const pagerClass =
-    'cursor-pointer rounded-md border border-zinc-300 px-4 py-2 text-sm font-medium text-zinc-800 transition-colors duration-200 hover:bg-zinc-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-900 focus-visible:ring-offset-2';
+    'cursor-pointer rounded-md border border-zinc-300 px-4 py-2 text-sm font-medium text-zinc-800 transition-colors duration-200 hover:border-[var(--brand)] hover:bg-zinc-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)] focus-visible:ring-offset-2 motion-reduce:transition-none';
 
 export default function Home({ posts }) {
     const { tenant } = usePage().props;
@@ -32,21 +33,28 @@ export default function Home({ posts }) {
                                         className="mb-5 aspect-[16/9] w-full rounded-lg border border-zinc-200 bg-zinc-100 object-cover"
                                     />
                                 )}
-                                <p className="text-sm text-zinc-600">
-                                    <time dateTime={post.published_at}>{formatDate(post.published_at)}</time>
-                                    {post.author && <> · {post.author}</>}
+                                <p className="flex items-center gap-2 text-sm text-zinc-600">
+                                    <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-[var(--brand)]" />
+                                    <span>
+                                        <time dateTime={post.published_at}>{formatDate(post.published_at)}</time>
+                                        {post.author && <> · {post.author}</>}
+                                    </span>
                                 </p>
                                 <h2 className="mt-1 text-2xl font-semibold tracking-tight">
-                                    <Link
-                                        href={route('tenant.posts.show', post.slug)}
-                                        className="cursor-pointer rounded-sm hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-900"
-                                    >
+                                    <Link href={route('tenant.posts.show', post.slug)} className={brandLinkClass}>
                                         {post.title}
                                     </Link>
                                 </h2>
                                 <p className="mt-2 line-clamp-3 max-w-prose whitespace-pre-line leading-relaxed text-zinc-700">
                                     {post.excerpt}
                                 </p>
+                                <Link
+                                    href={route('tenant.posts.show', post.slug)}
+                                    className="mt-3 inline-block cursor-pointer rounded-sm text-sm font-semibold text-zinc-900 underline decoration-[var(--brand)] decoration-2 underline-offset-4 transition-colors duration-200 hover:text-zinc-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)] focus-visible:ring-offset-2 motion-reduce:transition-none"
+                                    aria-label={`Read “${post.title}”`}
+                                >
+                                    Read post
+                                </Link>
                             </article>
                         </li>
                     ))}
