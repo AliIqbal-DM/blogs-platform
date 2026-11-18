@@ -1,0 +1,23 @@
+---
+description: Project overview and pinned stack for the white-label blogging app
+alwaysApply: true
+---
+
+# Project overview
+
+White-label, multi-tenant blogging platform (DataMoon internship project).
+Each tenant gets its own blog on its own subdomain and its own MySQL database.
+
+## Stack (pinned)
+- Laravel 11
+- stancl/tenancy ^3.8, database-per-tenant (MySQL), tenants identified by domain
+- Central app: `blogs.test`; tenant blogs: `<name>.blogs.test` (e.g. `acme.blogs.test`)
+- Served locally by Laravel Herd
+- Frontend: React via Inertia (Laravel Breeze)
+- Tests: PHPUnit
+
+## Hard rules
+- Do NOT upgrade Laravel or stancl/tenancy, including major or minor version bumps in composer.json.
+- Do NOT add any dependency (composer or npm) without asking first and explaining why.
+- Prefer built-in Laravel and stancl/tenancy features over new packages.
+- See `tenancy.mdc`, `frontend.mdc` and `git-workflow.mdc` for area-specific rules.

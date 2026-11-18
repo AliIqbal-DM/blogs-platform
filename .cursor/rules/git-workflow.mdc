@@ -1,0 +1,27 @@
+---
+description: Git commit, branch and PR conventions
+alwaysApply: true
+---
+
+# Git workflow
+
+## Commits
+- Format: `type(scope): description`, all lowercase.
+- type: one of `feat|fix|chore|refactor|docs|test|perf|style|build|ci`.
+- scope: short kebab-case area name (e.g. `tasks`, `auth`, `tenant-routes`).
+- Optional body after a blank line explaining why.
+- One logical change per commit. If the description needs "and", split it.
+
+## Branches
+- One feature per branch, created from `main`, named `feat/<short-name>` (or `fix/...`, etc.).
+
+## Pull requests
+- The description says what changed, why, and how it was tested.
+- Never merge PRs.
+
+## No AI attribution
+- No `Co-Authored-By` lines naming an AI tool and no "Generated with ..." lines, in commits or PR descriptions.
+
+## Agent behaviour
+- Never run `git commit` or `git push` yourself.
+- Instead, propose the exact `git add <files>` and `git commit -m "..."` commands for the user to run.

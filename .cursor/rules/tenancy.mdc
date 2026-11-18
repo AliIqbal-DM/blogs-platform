@@ -1,0 +1,28 @@
+---
+description: Multi-tenancy rules for stancl/tenancy (database per tenant, domain identification)
+globs: app/**, routes/**, database/**, tests/**
+alwaysApply: false
+---
+
+# Tenancy rules (stancl/tenancy ^3.8)
+
+## Routes
+- Central routes live in `routes/web.php`, wrapped in a `Route::domain(...)` group for each entry in `config('tenancy.central_domains')`.
+- Tenant routes live in `routes/tenant.php` with `InitializeTenancyByDomain` and `PreventAccessFromCentralDomains` middleware.
+
+## Database
+- Central migrations: `database/migrations`. Tenant migrations: `database/migrations/tenant`.
+- No `tenant_id` columns: isolation comes from separate databases.
+- Central-only models (e.g. Tenant, Domain, central users) use the `Stancl\Tenancy\Database\Concerns\CentralConnection` trait.
+
+## Crossing tenants
+- Use `$tenant->run(fn () => ...)` for work across tenants.
+- Never hold Eloquent models across tenant contexts; re-query inside each `run()`.
+
+## Cache, files, queues
+- Cache needs a tag-capable store: redis (or `array` in tests). Never `file` or `database`.
+- Files go through the tenant-aware filesystem disks, never hard-coded central paths.
+- Queued jobs and scheduled work must run inside tenant context (tenant-aware queues, or loop tenants with `$tenant->run()` in scheduled commands).
+
+## Tests
+- Every tenant-facing feature needs a test proving tenant A cannot see tenant B's data.
