@@ -1,3 +1,4 @@
+import { brandButtonClass } from '@/brand';
 import Modal from '@/Components/Modal';
 import WriterLayout from '@/Layouts/WriterLayout';
 import { Head, Link, useForm } from '@inertiajs/react';
@@ -64,7 +65,7 @@ function NewPostButton() {
     return (
         <Link
             href={route('tenant.dashboard.posts.create')}
-            className="inline-flex cursor-pointer items-center rounded-md bg-[var(--brand)] px-4 py-2 text-sm font-semibold text-white shadow-sm transition-opacity duration-200 hover:opacity-90 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)] focus-visible:ring-offset-2"
+            className={brandButtonClass}
         >
             New post
         </Link>

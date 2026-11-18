@@ -1,3 +1,4 @@
+import { brandButtonClass } from '@/brand';
 import WriterLayout from '@/Layouts/WriterLayout';
 import { Head, Link, usePage } from '@inertiajs/react';
 
@@ -16,7 +17,7 @@ export default function Dashboard() {
             <div className="mt-8 flex flex-wrap gap-3">
                 <Link
                     href={route('tenant.dashboard.posts.index')}
-                    className="cursor-pointer rounded-md bg-[var(--brand)] px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-opacity duration-200 hover:opacity-90 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)] focus-visible:ring-offset-2"
+                    className={`${brandButtonClass} py-2.5`}
                 >
                     Manage posts
                 </Link>
