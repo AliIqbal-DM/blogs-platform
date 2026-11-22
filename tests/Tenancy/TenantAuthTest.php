@@ -117,7 +117,7 @@ class TenantAuthTest extends TenantTestCase
 
     public function test_central_admin_cannot_log_in_on_tenant_domain(): void
     {
-        User::factory()->create(['email' => 'admin@blogs.test', 'password' => 'admin-password']);
+        User::factory()->admin()->create(['email' => 'admin@blogs.test', 'password' => 'admin-password']);
 
         $this->post(self::ACME.'/login', ['email' => 'admin@blogs.test', 'password' => 'admin-password'])
             ->assertSessionHasErrors('email');

@@ -22,7 +22,7 @@ class StoreTenantValidationTest extends TestCase
         parent::setUp();
 
         Storage::fake('public');
-        $this->actingAs(User::factory()->create());
+        $this->actingAs(User::factory()->admin()->create());
     }
 
     private function postTenant(array $overrides = [])

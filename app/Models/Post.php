@@ -14,7 +14,6 @@ use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
-use Illuminate\Validation\ValidationException;
 
 #[ObservedBy(PostObserver::class)]
 class Post extends Model
@@ -120,6 +119,7 @@ class Post extends Model
                 return false;
             }
 
+            // The post became visible at its scheduled time; applyPublishedAtRule() keeps an explicit moment.
             $post->status = PostStatus::Published;
             $post->published_at = $post->publish_at;
             $post->save();
@@ -129,9 +129,8 @@ class Post extends Model
     }
 
     /**
-     * Every publishing rule lives here, so it applies to forms, factories and seeders alike.
-     *
-     * @throws ValidationException
+     * Status rules that apply to forms, factories and seeders alike. Whether a scheduled time must be
+     * in the future depends on what the writer submitted, so StorePostRequest checks that.
      */
     public function applyStatusRules(): void
     {
@@ -139,14 +138,28 @@ class Post extends Model
             $this->publish_at = null;
         }
 
-        if ($this->status === PostStatus::Scheduled && ! $this->publish_at?->isFuture()) {
-            throw ValidationException::withMessages([
-                'publish_at' => 'Choose a publish date and time in the future to schedule this post.',
-            ]);
+        $this->applyPublishedAtRule();
+    }
+
+    /**
+     * Rule: published_at is the moment the post most recently became visible to readers.
+     * - Becoming published sets it to now, unless this save sets the moment explicitly
+     *   (publishIfDue passes the scheduled time; factories and seeders may backdate).
+     * - Staying published keeps it.
+     * - Leaving published (to draft or scheduled) clears it, so publishing again gives a new time.
+     */
+    private function applyPublishedAtRule(): void
+    {
+        if ($this->status !== PostStatus::Published) {
+            $this->published_at = null;
+
+            return;
         }
 
-        if ($this->status === PostStatus::Published) {
-            $this->published_at ??= now();
+        $wasPublished = $this->exists && $this->getOriginal('status') === PostStatus::Published;
+
+        if ((! $wasPublished && ! $this->isDirty('published_at')) || $this->published_at === null) {
+            $this->published_at = now();
         }
     }
 

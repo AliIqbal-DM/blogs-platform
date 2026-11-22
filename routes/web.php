@@ -25,7 +25,9 @@ foreach (config('tenancy.central_domains') as $domain) {
             Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
             Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-            Route::resource('tenants', TenantController::class)->only(['index', 'create', 'store']);
+            Route::resource('tenants', TenantController::class)
+                ->only(['index', 'create', 'store'])
+                ->middleware('can:manage-tenants');
         });
 
         require __DIR__.'/auth.php';

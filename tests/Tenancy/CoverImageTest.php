@@ -8,6 +8,7 @@ use App\Models\Tenant;
 use Illuminate\Http\UploadedFile;
 use Inertia\Testing\AssertableInertia as Assert;
 use PHPUnit\Framework\Attributes\DataProvider;
+use RuntimeException;
 
 class CoverImageTest extends TenantTestCase
 {
@@ -158,15 +159,18 @@ class CoverImageTest extends TenantTestCase
 
     public function test_a_failed_save_does_not_leave_the_new_upload_behind(): void
     {
+        // Fails after validation passed and the upload was stored.
+        Post::saving(fn () => throw new RuntimeException('Simulated database failure.'));
+
         $this->actingAsWriter($this->acme)
             ->post(self::ACME.'/dashboard/posts', $this->validPost([
-                'status' => 'scheduled',
-                'publish_at' => now()->subDay()->toIso8601String(),
                 'cover' => UploadedFile::fake()->image('cover.png'),
             ]))
-            ->assertSessionHasErrors('publish_at');
+            ->assertServerError();
 
+        $this->assertDirectoryExists($this->tenantStoragePath('acme', 'app/public/covers'));
         $this->assertSame([], glob($this->tenantStoragePath('acme', 'app/public/covers/*')) ?: []);
+        $this->assertSame(0, $this->acme->run(fn () => Post::count()));
     }
 
     /**

@@ -70,6 +70,8 @@ To reset the demo data later, run `php artisan migrate:fresh --seed`. You can ru
 
 The password for every demo account is `password` unless you set `ADMIN_PASSWORD` or `WRITER_PASSWORD` in `.env`. These credentials are for local development only. Each tenant has its own `writer@blogs.test` in its own database, so signing in on acme does not sign you in on globex.
 
+Tenant management is for central admins only. The seeded `admin@blogs.test` has the `is_admin` flag; any other central user who signs in gets 403 on the tenant list and the create-tenant pages.
+
 Each demo tenant gets seven posts: five published (three with cover images), one draft and one scheduled three days ahead. Logos and covers are placeholder PNGs drawn at seed time, so no image binaries are committed.
 
 ## Scheduler and queue worker
@@ -132,4 +134,4 @@ Tenant lifecycle is handled by job pipelines in `app/Providers/TenancyServicePro
 
 ## What I learned
 
-> **TODO (Ali): When there are multiple clients whom we need to serve from a single codebase, we use multitenancy. Clients can be put in a single db or each one can get their own db. You maintain it through the central db. Each user gets their own domain which cant be accessed from the central domain.**
+When there are multiple clients whom we need to serve from a single codebase, we use multitenancy. Clients can be put in a single db or each one can get their own db. You maintain it through the central db. Each user gets their own domain which cant be accessed from the central domain. We are making a new db for every tenant. So we get proper isolation. But the cost is that whenever the schema changes, the migrations have to run on every tenants db.

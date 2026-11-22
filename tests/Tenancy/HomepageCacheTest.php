@@ -114,6 +114,16 @@ class HomepageCacheTest extends TenantTestCase
         );
     }
 
+    public function test_unpublishing_a_post_invalidates_only_the_current_tenants_homepage(): void
+    {
+        $id = $this->acme->run(fn () => Post::factory()->published()->create(['title' => 'Back to draft'])->id);
+
+        $this->assertOnlyAcmeInvalidated(
+            fn () => Post::find($id)->update(['status' => PostStatus::Draft]),
+            dontSeeOnAcme: 'Back to draft',
+        );
+    }
+
     public function test_deleting_a_post_invalidates_only_the_current_tenants_homepage(): void
     {
         $id = $this->acme->run(fn () => Post::factory()->published()->create(['title' => 'Doomed'])->id);

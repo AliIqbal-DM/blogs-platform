@@ -8,7 +8,6 @@ use App\Models\Post;
 use App\Models\Tenant;
 use App\Models\User;
 use Illuminate\Support\Carbon;
-use Illuminate\Validation\ValidationException;
 use Inertia\Testing\AssertableInertia as Assert;
 
 class PostsCrudTest extends TenantTestCase
@@ -231,9 +230,6 @@ class PostsCrudTest extends TenantTestCase
             $originalPublishedAt = now()->subYear()->startOfSecond();
             $republished = Post::factory()->create(['status' => PostStatus::Published, 'published_at' => $originalPublishedAt]);
             $this->assertTrue($republished->published_at->equalTo($originalPublishedAt));
-
-            $this->expectException(ValidationException::class);
-            Post::factory()->create(['status' => PostStatus::Scheduled, 'publish_at' => now()->subMinute()]);
         });
     }
 
