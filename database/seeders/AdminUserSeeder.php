@@ -15,7 +15,7 @@ class AdminUserSeeder extends Seeder
             throw new RuntimeException('AdminUserSeeder is for local development only.');
         }
 
-        User::updateOrCreate(
+        $admin = User::updateOrCreate(
             ['email' => 'admin@blogs.test'],
             [
                 'name' => 'Central Admin',
@@ -23,5 +23,8 @@ class AdminUserSeeder extends Seeder
                 'email_verified_at' => now(),
             ],
         );
+
+        // is_admin is deliberately not fillable.
+        $admin->forceFill(['is_admin' => true])->save();
     }
 }

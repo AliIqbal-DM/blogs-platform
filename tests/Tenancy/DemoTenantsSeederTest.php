@@ -39,7 +39,7 @@ class DemoTenantsSeederTest extends TenantTestCase
     {
         $this->seed();
 
-        $this->assertDatabaseHas('users', ['email' => 'admin@blogs.test']);
+        $this->assertDatabaseHas('users', ['email' => 'admin@blogs.test', 'is_admin' => true]);
         $this->assertEqualsCanonicalizing(['acme', 'globex'], Tenant::pluck('id')->all());
 
         foreach (['acme' => '#e11d48', 'globex' => '#2563eb'] as $id => $color) {
