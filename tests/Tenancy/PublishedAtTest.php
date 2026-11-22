@@ -128,6 +128,17 @@ class PublishedAtTest extends TenantTestCase
         $this->assertPublishedAt($id, '2026-11-22 16:00:00');
     }
 
+    public function test_factory_states_follow_the_rule(): void
+    {
+        $this->acme->run(function () {
+            $this->assertNull(Post::factory()->create()->published_at);
+            $this->assertNull(Post::factory()->draft()->create()->published_at);
+            $this->assertNull(Post::factory()->scheduled()->create()->published_at);
+            $this->assertTrue(Post::factory()->published()->create()->published_at->isPast());
+            $this->assertNull(Post::factory()->published()->draft()->create()->published_at);
+        });
+    }
+
     public function test_a_republished_post_moves_to_the_top_of_the_homepage(): void
     {
         $id = $this->publishedPost('2026-11-10 08:00:00', 'Comes back');

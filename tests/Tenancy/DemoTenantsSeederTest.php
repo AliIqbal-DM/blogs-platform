@@ -59,6 +59,10 @@ class DemoTenantsSeederTest extends TenantTestCase
                 $this->assertTrue(Post::where('status', PostStatus::Scheduled)->sole()->publish_at->isFuture());
                 $this->assertSame(0, Post::whereNull('user_id')->count());
 
+                // published_at is set exactly when a post is visible, and never in the future.
+                $this->assertSame(0, Post::where('status', PostStatus::Published)->where(fn ($q) => $q->whereNull('published_at')->orWhere('published_at', '>', now()))->count());
+                $this->assertSame(0, Post::where('status', '!=', PostStatus::Published)->whereNotNull('published_at')->count());
+
                 $covers = Post::whereNotNull('cover_image')->pluck('cover_image');
                 $this->assertGreaterThanOrEqual(2, $covers->count());
                 foreach ($covers as $cover) {
