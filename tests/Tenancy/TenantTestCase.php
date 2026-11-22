@@ -6,6 +6,7 @@ use App\Models\Tenant;
 use App\Models\User;
 use Illuminate\Cache\ArrayStore;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Facade;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\File;
 use Stancl\Tenancy\Events\TenancyBootstrapped;
@@ -80,6 +81,9 @@ abstract class TenantTestCase extends TestCase
         $this->app['auth']->forgetGuards();
         $this->app['session']->forgetDrivers();
         $this->app->forgetInstance('session.store');
+        // The redirector holds the session it was built with; validation errors would be flashed there.
+        $this->app->forgetInstance('redirect');
+        Facade::clearResolvedInstance('redirect');
     }
 
     /**
