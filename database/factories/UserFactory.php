@@ -41,4 +41,14 @@ class UserFactory extends Factory
             'email_verified_at' => null,
         ]);
     }
+
+    /**
+     * A central admin who may manage tenants. Tenant databases have no is_admin column.
+     */
+    public function admin(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'is_admin' => true,
+        ]);
+    }
 }
