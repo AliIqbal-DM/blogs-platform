@@ -119,6 +119,7 @@ class Post extends Model
                 return false;
             }
 
+            // The post became visible at its scheduled time; applyPublishedAtRule() keeps an explicit moment.
             $post->status = PostStatus::Published;
             $post->published_at = $post->publish_at;
             $post->save();
@@ -137,8 +138,28 @@ class Post extends Model
             $this->publish_at = null;
         }
 
-        if ($this->status === PostStatus::Published) {
-            $this->published_at ??= now();
+        $this->applyPublishedAtRule();
+    }
+
+    /**
+     * Rule: published_at is the moment the post most recently became visible to readers.
+     * - Becoming published sets it to now, unless this save sets the moment explicitly
+     *   (publishIfDue passes the scheduled time; factories and seeders may backdate).
+     * - Staying published keeps it.
+     * - Leaving published (to draft or scheduled) clears it, so publishing again gives a new time.
+     */
+    private function applyPublishedAtRule(): void
+    {
+        if ($this->status !== PostStatus::Published) {
+            $this->published_at = null;
+
+            return;
+        }
+
+        $wasPublished = $this->exists && $this->getOriginal('status') === PostStatus::Published;
+
+        if ((! $wasPublished && ! $this->isDirty('published_at')) || $this->published_at === null) {
+            $this->published_at = now();
         }
     }
 
