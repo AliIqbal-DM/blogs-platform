@@ -39,11 +39,10 @@ class OverdueScheduledPostTest extends TenantTestCase
         $this->update($id, ['body' => 'Fixed a typo.', 'publish_at' => '2026-11-22T15:00:00.000Z'])
             ->assertSessionHasNoErrors();
 
-        $post = $this->acme->run(fn () => Post::findOrFail($id));
-        $this->assertSame('Fixed a typo.', $post->body);
-        $this->assertSame(PostStatus::Scheduled, $post->status);
-        $this->assertSame('2026-11-22 15:00:00', $post->publish_at->format('Y-m-d H:i:s'));
-        $this->assertNull($post->published_at);
+        $this->assertSame(
+            ['body' => 'Fixed a typo.', 'status' => PostStatus::Scheduled, 'publish_at' => '2026-11-22 15:00:00', 'published_at' => null],
+            $this->state($id),
+        );
     }
 
     public function test_the_same_time_in_another_offset_or_format_is_not_a_change(): void
@@ -79,9 +78,9 @@ class OverdueScheduledPostTest extends TenantTestCase
         $this->update($id, ['publish_at' => '2026-11-22T14:59:00.000Z', 'body' => 'Should not save'])
             ->assertSessionHasErrors('publish_at');
 
-        $post = $this->acme->run(fn () => Post::findOrFail($id));
-        $this->assertSame('Changed', $post->body);
-        $this->assertSame('2026-11-22 15:00:00', $post->publish_at->format('Y-m-d H:i:s'));
+        $state = $this->state($id);
+        $this->assertSame('Changed', $state['body']);
+        $this->assertSame('2026-11-22 15:00:00', $state['publish_at']);
     }
 
     public function test_changing_the_date_of_a_scheduled_post_to_a_future_time_succeeds(): void
@@ -144,10 +143,29 @@ class OverdueScheduledPostTest extends TenantTestCase
         Carbon::setTestNow('2026-11-22 15:01:00');
         $this->assertTrue($this->acme->run(fn () => Post::publishIfDue($id)));
 
-        $post = $this->acme->run(fn () => Post::findOrFail($id));
-        $this->assertSame(PostStatus::Published, $post->status);
-        $this->assertSame('Edited while overdue', $post->body);
-        $this->assertSame('2026-11-22 15:00:00', $post->published_at->format('Y-m-d H:i:s'));
+        $state = $this->state($id);
+        $this->assertSame(PostStatus::Published, $state['status']);
+        $this->assertSame('Edited while overdue', $state['body']);
+        $this->assertSame('2026-11-22 15:00:00', $state['published_at']);
+    }
+
+    /**
+     * The fields under test, read inside the tenant so no model leaves its context.
+     *
+     * @return array{body: string, status: PostStatus, publish_at: ?string, published_at: ?string}
+     */
+    private function state(int $id): array
+    {
+        return $this->acme->run(function () use ($id) {
+            $post = Post::findOrFail($id);
+
+            return [
+                'body' => $post->body,
+                'status' => $post->status,
+                'publish_at' => $post->publish_at?->format('Y-m-d H:i:s'),
+                'published_at' => $post->published_at?->format('Y-m-d H:i:s'),
+            ];
+        });
     }
 
     /**
