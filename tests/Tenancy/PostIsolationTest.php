@@ -79,7 +79,7 @@ class PostIsolationTest extends TenantTestCase
         $legacy = app(CreateTenant::class)->handle(id: 'legacy', name: 'Legacy', domain: 'legacy.blogs.test');
         $legacy->run(fn () => Schema::drop('posts'));
 
-        $admin = User::factory()->create();
+        $admin = User::factory()->admin()->create();
 
         $tenants = $this->actingAs($admin)
             ->get('http://blogs.test/tenants')

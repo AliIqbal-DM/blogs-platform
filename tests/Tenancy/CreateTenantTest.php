@@ -16,7 +16,7 @@ class CreateTenantTest extends TenantTestCase
     {
         // Keep a handle on the fake: ending tenancy after the tenant database is migrated resets the disk.
         $disk = Storage::fake('public');
-        $admin = User::factory()->create();
+        $admin = User::factory()->admin()->create();
 
         $this->actingAs($admin)
             ->post('/tenants', [

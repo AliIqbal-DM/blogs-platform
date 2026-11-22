@@ -36,7 +36,7 @@ class IsolationTest extends TenantTestCase
 
         $this->acme = app(CreateTenant::class)->handle(id: 'acme', name: 'Acme', domain: 'acme.blogs.test');
         $this->acme->run(fn () => Post::factory()->published()->create(['slug' => 'hello']));
-        $this->admin = User::factory()->create(['email' => 'admin@blogs.test', 'password' => 'admin-password']);
+        $this->admin = User::factory()->admin()->create(['email' => 'admin@blogs.test', 'password' => 'admin-password']);
     }
 
     public function test_an_unknown_domain_returns_404_while_a_registered_tenant_resolves(): void
