@@ -14,7 +14,6 @@ use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
-use Illuminate\Validation\ValidationException;
 
 #[ObservedBy(PostObserver::class)]
 class Post extends Model
@@ -129,20 +128,13 @@ class Post extends Model
     }
 
     /**
-     * Every publishing rule lives here, so it applies to forms, factories and seeders alike.
-     *
-     * @throws ValidationException
+     * Status rules that apply to forms, factories and seeders alike. Whether a scheduled time must be
+     * in the future depends on what the writer submitted, so StorePostRequest checks that.
      */
     public function applyStatusRules(): void
     {
         if ($this->status === PostStatus::Draft) {
             $this->publish_at = null;
-        }
-
-        if ($this->status === PostStatus::Scheduled && ! $this->publish_at?->isFuture()) {
-            throw ValidationException::withMessages([
-                'publish_at' => 'Choose a publish date and time in the future to schedule this post.',
-            ]);
         }
 
         if ($this->status === PostStatus::Published) {
