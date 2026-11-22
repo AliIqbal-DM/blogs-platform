@@ -134,4 +134,4 @@ Tenant lifecycle is handled by job pipelines in `app/Providers/TenancyServicePro
 
 ## What I learned
 
-> **TODO (Ali): When there are multiple clients whom we need to serve from a single codebase, we use multitenancy. Clients can be put in a single db or each one can get their own db. You maintain it through the central db. Each user gets their own domain which cant be accessed from the central domain.**
+When there are multiple clients whom we need to serve from a single codebase, we use multitenancy. Clients can be put in a single db or each one can get their own db. You maintain it through the central db. Each user gets their own domain which cant be accessed from the central domain. We are making a new db for every tenant. So we get proper isolation. But the cost is that whenever the schema changes, the migrations have to run on every tenants db.
